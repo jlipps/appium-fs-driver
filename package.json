@@ -48,6 +48,7 @@
     "webdriverio": "^7.12.4"
   },
   "dependencies": {
-    "@appium/base-driver": "^8.0.2"
+    "@appium/base-driver": "^8.0.2",
+    "@appium/support": "^2.54.2"
   }
 }
