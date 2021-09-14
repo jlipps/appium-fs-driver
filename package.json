@@ -1,0 +1,40 @@
+{
+  "name": "appium-fs-driver",
+  "description": "Appium driver for the filesystem",
+  "keywords": [
+    "appium",
+    "filesystem"
+  ],
+  "version": "0.0.1",
+  "author": "appium",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/appium/appium-fs-driver.git"
+  },
+  "bugs": {
+    "url": "https://github.com/appium/appium-fs-driver/issues"
+  },
+  "main": "./build/driver.js",
+  "bin": {},
+  "directories": {
+    "src": "src"
+  },
+  "files": [
+    "build",
+    "src"
+  ],
+  "scripts": {
+    "clean": "rimraf package-lock.json && rimraf node_modules && npm install",
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "test": "jest build/test"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.1",
+    "jest": "^27.2.0",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.1.2",
+    "webdriverio": "^7.12.4"
+  }
+}
