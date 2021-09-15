@@ -10,7 +10,36 @@ class AppiumFSDriver extends BaseDriver {
 
   locatorStrategies = ['xpath']
   elementCache = {}
-  desiredCapConstraints = {baseDir: {presence: true}}
+  desiredCapConstraints = {baseDir: {presence: true, isString: true}}
+
+  static get argsConstraints() {
+    return {chroot: {presence: true, isString: true}}
+  }
+
+  async createSession(...args) {
+    const res = await super.createSession(...args)
+    this.validateBaseDir()
+    return res
+  }
+
+  validateBaseDir() {
+    if (!this.cliArgs?.chroot) {
+      throw new Error('The "chroot" driver arg must be set for security purposes')
+    }
+    log.info(`Checking whether baseDir '${this.opts.baseDir}' is in chroot '${this.cliArgs.chroot}'`)
+    const chrootParts = this.cliArgs.chroot.split(path.sep)
+    const baseDirParts = this.opts.baseDir.split(path.sep)
+    const errMsg = `The baseDir cap must represent a path within the driver chroot. ` +
+                   `Your baseDir '${this.opts.baseDir}' was not inside '${this.cliArgs.chroot}'`
+    if (baseDirParts.length < chrootParts.length) {
+      throw new Error(errMsg)
+    }
+    for (let i = 0; i < baseDirParts.length; i++) {
+      if (chrootParts[i] && chrootParts[i] !== baseDirParts[i]) {
+        throw new Error(errMsg)
+      }
+    }
+  }
 
   async getPageSource() {
     // TODO return an actual directory hierarchy instead of a flat list

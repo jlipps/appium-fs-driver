@@ -8,10 +8,12 @@ import { fs } from '@appium/support'
 
 // TODO for now we assume a running Appium server with our driver linked in, but to make this
 // a real robust test suite, we'd want to dynamically run an Appium 2.0 server instead of relying
-// on an external one
+// on an external one. We also assume the chroot driver arg as represented here, i.e., with:
+// appium --driver-args='{"fs": {"chroot": "<CHROOT_DIR>"}}'
 const APPIUM_HOST = 'localhost'
 const APPIUM_PORT = 4723
 const BASE_DIR = path.resolve(__dirname, '..')
+const CHROOT_DIR = path.resolve(__dirname, '..', '..')
 const WDIO_PARAMS = {
   connectionRetryCount: 0,
   hostname: APPIUM_HOST,
@@ -43,6 +45,29 @@ describe('E2E - session start', () => {
       err = e
     }
     expect(err.message).toMatch(/baseDir/)
+  })
+
+  test('must use a basedir within the appropriate chroot', async () => {
+    const badPaths = [
+      path.resolve(CHROOT_DIR, '..'),
+      path.resolve(CHROOT_DIR, '..', 'foo'),
+      '/',
+      '/foo',
+    ]
+    for (const badPath of badPaths) {
+      const capabilities = {
+        platformName: 'Mac',
+        'appium:automationName': 'FS',
+        'appium:baseDir': badPath
+      }
+      let err
+      try {
+        await remote({...WDIO_PARAMS, capabilities})
+      } catch (e) {
+        err = e
+      }
+      expect(err.message).toMatch(/chroot/)
+    }
   })
 })
 
