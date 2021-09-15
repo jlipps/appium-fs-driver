@@ -57,6 +57,20 @@ class AppiumFSDriver extends BaseDriver {
     return {[W3C_ELEMENT_KEY]: elementId}
   }
 
+  async getText(elementId) {
+    const filePath = this.elementCache[elementId]
+
+    if (!filePath) {
+      throw new errors.NoSuchElementError()
+    }
+
+    if (!await fs.exists(filePath)) {
+      throw new errors.StaleElementReferenceError()
+    }
+
+    return await fs.readFile(filePath, 'utf8')
+  }
+
 }
 
 export { AppiumFSDriver }

@@ -4,6 +4,7 @@
 import path from 'path'
 import { AppiumFSDriver } from '../driver'
 import { remote } from 'webdriverio'
+import { fs } from '@appium/support'
 
 // TODO for now we assume a running Appium server with our driver linked in, but to make this
 // a real robust test suite, we'd want to dynamically run an Appium 2.0 server instead of relying
@@ -23,6 +24,7 @@ const DEFAULT_CAPS = {
   'appium:automationName': 'FS',
   'appium:baseDir': BASE_DIR,
 }
+const SANDBOX = path.resolve(__dirname, '..', 'sandbox')
 
 test('driver export exists', () => {
   expect(AppiumFSDriver).toBeDefined()
@@ -48,6 +50,9 @@ describe('E2E - commands', () => {
   let driver = null
 
   beforeAll(async () => {
+    // create a file sandbox within 'build'
+    await fs.rimraf(SANDBOX)
+    await fs.mkdir(SANDBOX)
     driver = await remote({...WDIO_PARAMS, capabilities: DEFAULT_CAPS})
   })
 
@@ -78,6 +83,25 @@ describe('E2E - commands', () => {
   test('should be able to find multiple elements', async () => {
     const els = await driver.$$('//file')
     expect(els.length).toBeGreaterThan(1)
+  })
+
+  test('should be able to get file contents from element get text', async () => {
+    const el = await driver.$('//file[contains(@path, "driver.test.js")]')
+    expect(await el.getText()).toContain('should be able to get file contents')
+  })
+
+  test('should throw a stale element error if file does not exist', async () => {
+    const staleFile = path.resolve(SANDBOX, 'stale.txt')
+    await fs.writeFile(staleFile, 'this file will go away')
+    const el = await driver.$('//file[contains(@path, "stale.txt")]')
+    await fs.unlink(staleFile)
+    let err
+    try {
+      await el.getText()
+    } catch (e) {
+      err = e
+    }
+    expect(err.message).toContain('stale')
   })
 
   afterAll(async () => {
