@@ -104,6 +104,24 @@ describe('E2E - commands', () => {
     expect(err.message).toContain('stale')
   })
 
+  test('should use add value to append to a files text', async () => {
+    const testFile = path.resolve(SANDBOX, 'sendkeys.txt')
+    await fs.writeFile(testFile, '')
+    const el = await driver.$('//file[contains(@path, "sendkeys.txt")]')
+    await el.addValue('foo')
+    expect(await fs.readFile(testFile, 'utf8')).toEqual('foo')
+    await el.addValue('bar')
+    expect(await fs.readFile(testFile, 'utf8')).toEqual('foobar')
+  })
+
+  test('should use clear to clear out the file contents', async () => {
+    const testFile = path.resolve(SANDBOX, 'clear.txt')
+    await fs.writeFile(testFile, 'hello!')
+    const el = await driver.$('//file[contains(@path, "clear.txt")]')
+    await el.clearValue()
+    expect(await fs.readFile(testFile, 'utf8')).toEqual('')
+  })
+
   afterAll(async () => {
     if (driver) {
       await driver.deleteSession()

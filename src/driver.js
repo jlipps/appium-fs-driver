@@ -57,7 +57,7 @@ class AppiumFSDriver extends BaseDriver {
     return {[W3C_ELEMENT_KEY]: elementId}
   }
 
-  async getText(elementId) {
+  async fileFromElement(elementId) {
     const filePath = this.elementCache[elementId]
 
     if (!filePath) {
@@ -68,7 +68,22 @@ class AppiumFSDriver extends BaseDriver {
       throw new errors.StaleElementReferenceError()
     }
 
+    return filePath
+  }
+
+  async getText(elementId) {
+    const filePath = await this.fileFromElement(elementId)
     return await fs.readFile(filePath, 'utf8')
+  }
+
+  async setValue(text, elementId) {
+    const filePath = await this.fileFromElement(elementId)
+    return await fs.appendFile(filePath, text)
+  }
+
+  async clear(elementId) {
+    const filePath = await this.fileFromElement(elementId)
+    return await fs.writeFile(filePath, '')
   }
 
 }
