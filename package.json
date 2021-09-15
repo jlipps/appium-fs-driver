@@ -49,6 +49,8 @@
   },
   "dependencies": {
     "@appium/base-driver": "^8.0.2",
-    "@appium/support": "^2.54.2"
+    "@appium/support": "^2.54.2",
+    "xmldom": "^0.6.0",
+    "xpath": "^0.0.32"
   }
 }

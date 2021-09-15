@@ -55,6 +55,31 @@ describe('E2E - commands', () => {
     expect(await driver.getPageSource()).toContain(__filename)
   })
 
+  test('should be able to find a file as element', async () => {
+    const el = await driver.$('//file[contains(@path, "build/driver.js")]')
+    expect(el.error).toBeUndefined()
+  })
+
+  test('should not be able to use a non-xpath locator strategy', async () => {
+    let err
+    try {
+      await driver.$('#foo')
+    } catch (e) {
+      err = e
+    }
+    expect(err.message).toMatch(/not supported/)
+  })
+
+  test('should not be able to find an element which does not exist', async () => {
+    const el = await driver.$('//file[contains(@path, "doesnotexist")]')
+    expect(el.error).toBeDefined()
+  })
+
+  test('should be able to find multiple elements', async () => {
+    const els = await driver.$$('//file')
+    expect(els.length).toBeGreaterThan(1)
+  })
+
   afterAll(async () => {
     if (driver) {
       await driver.deleteSession()
