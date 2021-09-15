@@ -86,6 +86,15 @@ class AppiumFSDriver extends BaseDriver {
     return await fs.writeFile(filePath, '')
   }
 
+  async execute(script, args) {
+    if (script === 'fs: delete') {
+      const filePath = await this.fileFromElement(args[0])
+      return await fs.unlink(filePath)
+    }
+
+    throw new Error(`Don't know how to run script '${script}'`)
+  }
+
 }
 
 export { AppiumFSDriver }

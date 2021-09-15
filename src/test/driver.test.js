@@ -122,6 +122,14 @@ describe('E2E - commands', () => {
     expect(await fs.readFile(testFile, 'utf8')).toEqual('')
   })
 
+  test('should delete a file with fs: delete', async () => {
+    const testFile = path.resolve(SANDBOX, 'delete.txt')
+    await fs.writeFile(testFile, 'oh no not again')
+    const el = await driver.$('//file[contains(@path, "delete.txt")]')
+    await driver.execute('fs: delete', el.elementId)
+    expect(await fs.exists(testFile)).toBeFalsy()
+  })
+
   afterAll(async () => {
     if (driver) {
       await driver.deleteSession()
